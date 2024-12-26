@@ -31,7 +31,6 @@ class PAE(torch.nn.Module):
         return p
 
     def model_init(self):
-        #self.modules从module中继承，
         for m in self.modules():
             if isinstance(m, Linear):
                 torch.nn.init.kaiming_normal_(m.weight)
