@@ -10,8 +10,8 @@ class Node_GCN(torch.nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
         super(Node_GCN, self).__init__()
         
-        self.nhid = nhid #隐藏层神经元数
-        self.nfeat = nfeat #特征数
+        self.nhid = nhid 
+        self.nfeat = nfeat
         self.num_classes = nclass
         self.dropout_ratio = dropout
         
