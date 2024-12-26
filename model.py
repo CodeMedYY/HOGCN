@@ -71,7 +71,7 @@ class feature_coding(torch.nn.Module):
         x = self.conv1(x.to(torch.float32), edge_index, edge_weight = edge_attr)   
         x = F.relu(x)
 
-        x, edge_index, edge_attr, batch, perm1, score1, score_sort1, new2old1_dict = self.pool1(x = x.to(torch.float32), edge_index = edge_index, edge_attr = edge_attr, batch = batch, mode=1)      # x是 [batch size*num_nodes*pooling ratio, nhid]
+        x, edge_index, edge_attr, batch, perm1, score1, score_sort1, new2old1_dict = self.pool1(x = x.to(torch.float32), edge_index = edge_index, edge_attr = edge_attr, batch = batch, mode=1)  
         x1 = torch.cat([gmp(x, batch), gap(x, batch)], dim=1)
 
         x = self.conv2(x, edge_index, edge_weight = edge_attr)
@@ -79,9 +79,7 @@ class feature_coding(torch.nn.Module):
         x, edge_index, edge_attr, batch = self.pool2(x = x.to(torch.float32), edge_index = edge_index, edge_attr = edge_attr, batch = batch, mode=1)    # 再乘pooling ratio
         x2 = torch.cat([gmp(x, batch), gap(x, batch)], dim=1)
 
-
         xx = (x1 + x2) / 2  
-
         return xx
 
 '''
@@ -138,14 +136,14 @@ def get_PAE_inputs_full(node_ftr, data, k=10):
     pd_dict['SITE_ID'] = np.copy(phonetic_data[:,2])
     pd_dict['HMMD'] = np.copy(phonetic_data[:,3]) 
   
-    # construct edge network inputs ，根据人数而不再是脑区数
+    # construct edge network inputs 
     node_ftr = node_ftr.detach().cpu().numpy()
-    n = node_ftr.shape[0]  #节点数
-    num_edge = n*(1+n)//2 - n #全连接时所产生的连边数量
+    n = node_ftr.shape[0] 
+    num_edge = n*(1+n)//2 - n 
     pd_ftr_dim = nonimg.shape[1]
-    edge_index = np.zeros([2, num_edge], dtype=np.int64) #连边数
-    edgenet_input = np.zeros([num_edge, 2*pd_ftr_dim], dtype=np.float32)  #连边权重
-    aff_score = np.zeros(num_edge, dtype=np.float32)  # 
+    edge_index = np.zeros([2, num_edge], dtype=np.int64) 
+    edgenet_input = np.zeros([num_edge, 2*pd_ftr_dim], dtype=np.float32)  
+    aff_score = np.zeros(num_edge, dtype=np.float32) 
         
     # static affinity score used to pre-prune edges 
     pd_affinity = create_affinity_graph_from_scores(['SITE_ID','HMMD'], pd_dict)
@@ -183,8 +181,6 @@ def get_PAE_inputs_full(node_ftr, data, k=10):
 
     edgenet_input = (edgenet_input- edgenet_input.mean(axis=0)) / (edgenet_input.std(axis=0)+1e-8)
     return edge_index, edgenet_input
-
-
 
 '''
 Affinity-separability feature module
@@ -251,7 +247,6 @@ def compute_fea_loss(batch_fea, batch_label):
     except:
         nosame_loss = torch.tensor(0.0)
     
-    #高斯核计算向量之间的相似度：不同label之间的损失
     difflabel_loss = 0.0
     iters = 0
     for i in range(len(pos_feature)):
@@ -267,7 +262,6 @@ def compute_fea_loss(batch_fea, batch_label):
                 norm_vector1 = np.linalg.norm(vector1)
                 norm_vector2 = np.linalg.norm(vector2)
                 euclidean_distance = dot_product / (norm_vector1 * norm_vector2)
-
 
             iters += 1
             difflabel_loss += euclidean_distance
